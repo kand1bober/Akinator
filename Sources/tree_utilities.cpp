@@ -11,18 +11,8 @@ int CheckSize_t( size_t number )
 char* GetFilePath( char* filepath, const char* filename )
 {
     printf("getting filepath\n");
-    const char* directory = "/home/vyacheslav/Akinator/";
+    const char* directory = "/home/vyacheslav/BinaryTree/";
     sprintf(filepath, "%s%s", directory, filename);
 
     return filepath;
-}
-
-
-void BufferResize( struct Writing_buffer* buffer )
-{
-    if ( buffer->ip + 10 >= buffer->capacity )
-    {
-        buffer->buffer = (char*)realloc( buffer->buffer, buffer->capacity * 2 );
-        buffer->capacity *= 2;
-    }
 }

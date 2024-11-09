@@ -2,9 +2,8 @@ compile_commands.json
 .cache
 TODO
 
-AkinatorGraph.svg
-AkinatorGraph.dot
-AkinatorGraph.html
+TreeGraph.svg
+TreeGraph.dot
+TreeGraph.html
 
-Akinator
-
+Tree

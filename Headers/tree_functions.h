@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
 
 #include "tree_configuration.h"
 #include "tree_macros.h"
@@ -9,8 +12,9 @@
 #ifndef AKINATOR_FUNCTIONS_HEADER
 #define AKINATOR_FUNCTIONS_HEADER
 
-
 typedef double TreeElem;
+const uint64_t POISON = 0xBADBABA;
+
 
 enum Errors
 {
@@ -35,17 +39,20 @@ enum Errors
     GOOD_DTOR,
     BAD_DTOR,
 
+    GOOD_CREATE,
+    BAD_CREATE,
+
     GOOD_INSERT,
     BAD_INSERT,
 
     GOOD_EXTRACT,
     BAD_EXTRACT,
 
-    GOOD_CREATE,
-    BAD_CREATE,
-
     GOOD_DELETE,
     BAD_DELETE,
+
+    GOOD_FIND,
+    BAD_FIND,
 };
 
 struct Node_t
@@ -64,6 +71,12 @@ struct Tree
 
 enum Errors TreeCtor( struct Tree* tree );
 enum Errors TreeDtor( struct Tree* tree );
+void FreeTree( struct Node_t* node);
+enum Errors CreateNode( TreeElem data, struct Node_t* new_node );
+enum Errors ExtractNode( struct Tree* tree, struct Node_t* node );
+enum Errors NodeInsert( struct Tree* tree, struct Node_t* left, struct Node_t* right, struct Node_t* node );
+enum Errors Find( struct Tree* tree, TreeElem to_find, struct Node_t* answer);
+void FindNode( struct Node_t* node_search, TreeElem to_find, struct Node_t* answer );
 
 
 #endif

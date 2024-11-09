@@ -7,7 +7,7 @@ SOURCES = $(wildcard $(SOURCES_DIR)/*cpp )
 
 OBJECTS = $(SOURCES:.cpp =.o) 
 
-EXECUTABLE = Akinator
+EXECUTABLE = Tree
 
 
 all: $(EXECUTABLE)
@@ -22,5 +22,5 @@ $(EXECUTABLE): $(OBJECTS)
 
 
 clean:
-	@rm  -rf $(SOURCES_PROC/*.o)  $(SOURCES_STACK/*.o)  $(EXECUTABLE) AkinatorGraph.dot AkinatorGraph.svg AkinatorGraph.html
+	@rm  -rf $(SOURCES_PROC/*.o)  $(SOURCES_STACK/*.o)  $(EXECUTABLE) TreeGraphh.dot TreeGraph.svg TreeGraph.html
 	
