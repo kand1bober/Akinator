@@ -7,5 +7,6 @@
 #include "Headers/tree_macros.h"
 #include "Headers/tree_output.h"
 #include "Headers/tree_utilities.h"
+#include "Headers/tree_input.h"
 
 #endif

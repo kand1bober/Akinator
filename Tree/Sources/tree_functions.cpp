@@ -1,17 +1,19 @@
 #include "../Headers/tree_functions.h"
 
-// Node root;
-// TreeCtor(Tree* tree)
-// TreeDtor() // рекурснивно
-// CreateNode(data, Node_t left, Node_t right) {Node_t new_node = calloc(), new_node->data = data, left->parent = new_node}
-// NodeDelete
-// NodeInsert
-// TreeDump
-
-
 enum TreeErrors TreeCtor( struct Tree* tree )
 {
     tree->root = (Node_t*)calloc( 1, sizeof( Node_t ) );
+
+    for(int i = 0; i < STRING_ARRAY_SIZE; i++)
+    {
+        strcpy( tree->strings[i].string, "empty" );
+        tree->strings[i].links_amount = 0;
+    }
+
+    strcpy(tree->strings[0].string, "it is root");
+    tree->strings[0].links_amount++;
+    tree->root->data = tree->strings[0].string;
+
     if(tree->root)
     {
         tree->status = GOOD_TREE;
@@ -26,110 +28,298 @@ enum TreeErrors TreeCtor( struct Tree* tree )
     return GOOD_CTOR;
 }
 
+
 enum TreeErrors TreeDtor( struct Tree* tree )
 {
-    FreeTree( tree->root );
+    FreeTree( tree, tree->root );
 
     return GOOD_DTOR;
 }
 
 
-void FreeTree( struct Node_t* node)
+void FreeTree( struct Tree* tree, struct Node_t* node )
 {   
     struct Node_t* left = node->left;
     struct Node_t* right = node->right;
 
     if( left != nullptr)
     {
-        FreeTree(left);
+        FreeTree(tree, left);
     }
 
     if( right != nullptr )
     {
-        FreeTree(right);
+        FreeTree(tree, right);
     }
 
+    DeleteString( tree, node->data);
     free( node );
 }
 
 
-enum TreeErrors CreateNode( TreeElem data, struct Node_t** new_node )
+enum TreeErrors CreateNode( struct Tree* tree, TreeElem data, struct Node_t** new_node )
 {
-    *new_node = (Node_t*)calloc( 1, sizeof( Node_t ) );
+    assert( tree );
+    assert( new_node );
 
-    (*new_node)->data = data;
-    (*new_node)->left = nullptr;
-    (*new_node)->right = nullptr;
+    enum TreeErrors find_status = SAME_STRING_EXISTS; // just initialization
+    int string_position = 0;
+    find_status = FindString( tree, data, &string_position );
 
-    return GOOD_CREATE;
-}
-
-
-//extract + delete
-enum TreeErrors NodeDelete( struct Node_t* node )
-{
-    ExtractNode( node );
-
-    node->data = 0;
-    node->left = nullptr;
-    node->right = nullptr;
-    node->parent = nullptr;
-    free(node);
-
-    return GOOD_DELETE;
-}
-
-
-enum TreeErrors InsertLeave( struct Node_t* parent, enum Direction branch, struct Node_t* to_connect )
-{   
-    if( branch == LEFT )
+    if( tree->root == nullptr ) //аналог TreeCtor
     {
-        if(parent->left == nullptr)
+        tree->root = (Node_t*)calloc( 1, sizeof( Node_t ) );
+        //-------------------
+        for(int i = 0; i < STRING_ARRAY_SIZE; i++)
         {
-            parent->left = to_connect;
-            to_connect->parent = parent;
+            strcpy( tree->strings[i].string, "empty" );
+            tree->strings[i].links_amount = 0;
+        }
+        //-------------------
+        (*new_node) = tree->root;
+        tree->strings[string_position].links_amount++; //=================
+        strcpy( tree->strings[string_position].string, data );
+        (*new_node)->data = ( (tree->strings + string_position)->string );
+        (*new_node)->left = nullptr;
+        (*new_node)->right = nullptr;
+        ON_DEBUG( printf(RED "created root \n" DELETE_COLOR); )
+        return GOOD_CREATE;
+    }   
+    else 
+    {
+        if( find_status == SAME_STRING_EXISTS )
+        {
+            *new_node = (Node_t*)calloc( 1, sizeof( Node_t ) );
+            tree->strings[string_position].links_amount++; //=================
+
+            (*new_node)->data = ( (tree->strings + string_position)->string );
+            (*new_node)->left = nullptr;
+            (*new_node)->right = nullptr;
+            ON_DEBUG( printf(RED "created with same string\n" DELETE_COLOR); )
+            return GOOD_CREATE;
+        }
+        else 
+        {
+            if( find_status == FOUND_EMPTY_STRING )
+            {
+                *new_node = (Node_t*)calloc( 1, sizeof( Node_t ) );
+                strcpy( tree->strings[string_position].string, data );
+                tree->strings[string_position].links_amount++; //==================
+
+                (*new_node)->data = (tree->strings + string_position)->string;
+                (*new_node)->left = nullptr;
+                (*new_node)->right = nullptr;
+                ON_DEBUG( printf(RED "created with a new string\n" DELETE_COLOR); )
+            }
+            else
+            {
+                ON_DEBUG( printf(RED "don't have free space in memory for a new string\n" DELETE_COLOR); )
+                return BAD_CREATE;
+            }
+        }
+    }
+
+    return BAD_CREATE; //if something strange
+}
+
+
+//---------------------------TREE STRINGS FUNCTIONS----------------------------
+enum TreeErrors FindString( struct Tree* tree, TreeElem to_find, int* string_position )
+{
+    *string_position = 0;
+
+    ON_DEBUG( StringDump( tree ); )
+
+    if( FindSameString( tree, to_find, string_position ) == SAME_STRING_EXISTS )
+    {
+        ON_DEBUG( printf(YELLOW "found same string\n" DELETE_COLOR); )
+        return SAME_STRING_EXISTS;
+    }
+    else if( FindEmptyString( tree, string_position ) == FOUND_EMPTY_STRING ) 
+    {   
+
+        ON_DEBUG( printf(YELLOW "found empty string\n" DELETE_COLOR); )
+        return FOUND_EMPTY_STRING;
+    } 
+    else 
+    {
+        ON_DEBUG( printf(YELLOW "not found empty string\n" DELETE_COLOR); )
+        return NOT_FOUND_EMPTY_STRING;
+    }
+}
+
+
+enum TreeErrors FindSameString( struct Tree* tree, TreeElem to_find, int* string_position )
+{             
+    *string_position = 0;
+    for(int i = 0; i < STRING_ARRAY_SIZE; i++)
+    {
+        if( strcmp( tree->strings[i].string, to_find) == 0 )
+        {
+            *string_position = i;
+            return SAME_STRING_EXISTS;
+        }
+        else 
+        {
+            continue;
+        }
+    }
+
+    return SAME_STRING_NOT_EXISTS;
+}
+
+
+enum TreeErrors FindEmptyString( struct Tree* tree, int* string_position )
+{
+    *string_position = 0;
+
+    for( int i = 0; i < STRING_ARRAY_SIZE; i++)
+    {
+        if( strcmp( tree->strings[i].string, "empty" ) == 0 )
+        {   
+            *string_position = i;
+            return FOUND_EMPTY_STRING;
+        }
+        else 
+        {
+            continue;
+        }
+    }
+
+    return NOT_FOUND_EMPTY_STRING;
+}   
+
+
+enum TreeErrors DeleteString( struct Tree* tree, TreeElem string )
+{   
+    int string_position = 0;
+
+    if( (FindSameString( tree, string, &string_position) ) == SAME_STRING_EXISTS )
+    {
+        tree->strings[string_position].links_amount--;
+        if( tree->strings[string_position].links_amount <= 0 )
+        {
+            strcpy( tree->strings[string_position].string, "empty" );
+        }
+        return GOOD_STRING_DELETE;
+    }   
+    else 
+    {
+        return BAD_STRING_DELETE;
+    }
+}
+
+
+void StringDump( struct Tree* tree )
+{
+    ON_DEBUG( printf(YELLOW "======Start of StringDump======\n" DELETE_COLOR); )
+    for(int i = 0; i < 10; i++)
+    {
+        printf("%s  links: %d\n", tree->strings[i].string, tree->strings[i].links_amount);
+    }
+    ON_DEBUG( printf(YELLOW "======End of StringDump======\n" DELETE_COLOR); )
+}
+//-----------------------------------------------------------------------------
+
+/*
+//extract + delete
+
+// //================ ПОХОДУ БЕСПОЛЕЗНАЯ ФУНКЦИЯ ===================
+// void FindEmpty( struct Node_t* node, struct Node_t** answer )
+// {
+//     struct Node_t* left = node->left;
+//     struct Node_t* right = node->right;
+
+//     if( *answer == nullptr )
+//     {
+//         if ( (left == nullptr) && (right == nullptr) )
+//         {
+//             *answer = node;
+//             return;
+//         }
+//         else if( (left != nullptr) && (right != nullptr) )
+//         {
+//             FindEmpty( left, answer );
+//             FindEmpty( right, answer );
+//         }
+//         else if( (left == nullptr) && (right != nullptr) )
+//         {
+//             FindEmpty( right, answer );
+//         }
+//         else if( (left != nullptr) && (right == nullptr) )
+//         {
+//             FindEmpty( left, answer );
+//         }
+//     }
+//     else 
+//     {
+//         return;
+//     }
+// }
+// //================================================================
+*/
+
+enum TreeErrors InsertLeave( struct Tree* tree, struct Node_t* parent, enum Direction branch, struct Node_t* to_connect )
+{   
+    assert( to_connect );
+
+    if( parent != nullptr )
+    {
+        if( branch == LEFT )
+        {
+            if(parent->left == nullptr)
+            {
+                parent->left = to_connect;
+                to_connect->parent = parent;
+
+                return GOOD_INSERT;
+            } 
+            else 
+            {
+                printf(RED "your parent node have leaves\n"
+                "So call InsertNode function instead of this function\n"
+                "And your node deleted for programm to not catch seg-fault\n"
+                "So create it again\n" DELETE_COLOR);
+
+                free(to_connect);
+
+                return BAD_INSERT;
+            }
+        }   
+        else if( branch == RIGHT )
+        {
+            if( parent->right == nullptr)
+            {
+                parent->right = to_connect;
+                to_connect->parent = parent;
+            }
+            else 
+            {
+                printf(RED "your parent node have leaves\n"
+                "So call InsertNode function instead of this function\n"
+                "And your node deleted for programm to not catch seg-fault\n"
+                "So create it again\n" DELETE_COLOR);
+                
+                free(to_connect);
+
+                return BAD_INSERT;
+            }
 
             return GOOD_INSERT;
-        } 
-        else 
-        {
-            printf(RED "your parent node have leaves\n"
-            "So call InsertNode function instead of this function\n"
-            "And your node deleted for programm to not catch seg-fault\n"
-            "So create it again\n" DELETE_COLOR);
-
-            free(to_connect);
-
-            return BAD_INSERT;
         }
-    }   
-    else if( branch == RIGHT )
+    }
+    else //случай, когда вставляем корень 
     {
-        if( parent->right == nullptr)
-        {
-            parent->right = to_connect;
-            to_connect->parent = parent;
-        }
-        else 
-        {
-            printf(RED "your parent node have leaves\n"
-            "So call InsertNode function instead of this function\n"
-            "And your node deleted for programm to not catch seg-fault\n"
-            "So create it again\n" DELETE_COLOR);
-            
-            free(to_connect);
-
-            return BAD_INSERT;
-        }
-
-        return GOOD_INSERT;
+        tree->root = to_connect;
+        to_connect->parent = nullptr;
+        ON_DEBUG( printf(RED "root inserted in beginning of tree\n" DELETE_COLOR); )
     }
 
     return GOOD_INSERT;
 }
 
 //insert already existing node
-enum TreeErrors NodeInsert( struct Node_t* left, struct Node_t* right, struct Node_t* node )
+enum TreeErrors InsertNode( struct Node_t* left, struct Node_t* right, struct Node_t* node )
 {
     if( (left != nullptr) && (right != nullptr) )
     {
@@ -153,7 +343,7 @@ enum TreeErrors NodeInsert( struct Node_t* left, struct Node_t* right, struct No
         else
         {
             // tree->status = BAD_TREE;
-            printf(YELLOW "Pointers don't connect\n" DELETE_COLOR);
+            ON_DEBUG( printf(YELLOW "Pointers don't connect\n" DELETE_COLOR); )
         }   
     }
     if( (left == nullptr) && (right == nullptr) ) //TODO: этот пункт пока хз
@@ -214,68 +404,89 @@ enum TreeErrors NodeInsert( struct Node_t* left, struct Node_t* right, struct No
 }
 
 
-enum TreeErrors ExtractNode( struct Node_t* node )
+enum TreeErrors NodeDelete( struct Tree* tree, struct Node_t* node ) 
 {
     if( node )
     {
         if( (node->left == nullptr) && (node->right == nullptr) )
         {
-            ON_DEBUG( printf(SINIY "extracting \"leave\" node\n" DELETE_COLOR); )
+            ON_DEBUG( printf(SINIY "deleting \"leave\" node\n" DELETE_COLOR); )
 
-            free(node);
-        }
-        if( (node->left != nullptr) && (node->right != nullptr) )
-        {
-            ON_DEBUG( printf(SINIY "extracting node with both branches\n( causes deletion of all nodes under )\n" DELETE_COLOR); )
- 
             struct Node_t* tmp_parent = node->parent;
-
-            // printf(YELLOW "pointers:\ntmp_parent: %p\nnode: %p\n\n" DELETE_COLOR, tmp_parent, node);
 
             if( tmp_parent->left == node )
             {
                 tmp_parent->left = nullptr;
+                
+                DeleteString( tree, node->data );
+
+                free(node);
             }
-            else if(  tmp_parent->right == node )
+            else if( tmp_parent->right == node )
             {
                 tmp_parent->right = nullptr;
+
+                DeleteString( tree, node->data );
+
+                free(node);
+            }
+        }
+        else if( (node->left != nullptr) && (node->right != nullptr) )
+        {
+            ON_DEBUG( printf(SINIY "deleting node with both branches\n( causes deletion of all nodes under )\n" DELETE_COLOR); )
+ 
+            struct Node_t* tmp_parent = node->parent;
+
+            if( tmp_parent->left == node )
+            {
+                tmp_parent->left = nullptr;
+                DeleteString( tree, node->data );
+            }
+            else if( tmp_parent->right == node )
+            {
+                tmp_parent->right = nullptr;
+                DeleteString( tree, node->data );
             }
             
-            FreeTree( node );
+            FreeTree( tree, node );
 
             return GOOD_EXTRACT;
         }
-        if( (node->left != nullptr) && (node->right == nullptr) ) //TODO: вопрос, удалять ли полностью или оставлять, пока оставляю, удаление сделать просто
+        else if( (node->left != nullptr) && (node->right == nullptr) ) 
         {
-            ON_DEBUG( printf(SINIY "extracring node with only left branch\n" DELETE_COLOR); )
+            ON_DEBUG( printf(SINIY "deleting node with only left branch\n" DELETE_COLOR); )
 
             if( node->parent->left == node )
             {
-                node->parent->left = node->left;
+                node->parent->left = nullptr;
+                DeleteString( tree, node->data );
             }
-            else if(  node->parent->parent->right == node )
+            else if(  node->parent->right == node )
             {
-                node->parent->right = node->left;
+                node->parent->right = nullptr;
+                DeleteString( tree, node->data );
             }
 
-            free( node );
+            FreeTree( tree, node );
 
             return GOOD_EXTRACT;
         }
-        if( (node->left == nullptr) && (node->right != nullptr) )
+        else if( (node->left == nullptr) && (node->right != nullptr) )
         {
             ON_DEBUG( printf(SINIY "extracting node with only right branch\n" DELETE_COLOR); )
 
             if( node->parent->left == node )
             {
-                node->parent->left = node->right;
+                node->parent->left = nullptr;
+                DeleteString( tree, node->data );
             }
-            else if(  node->parent->parent->right == node )
+            else if(  node->parent->right == node )
             {
-                node->parent->right = node->right;
+                node->parent->right = nullptr;
+                DeleteString( tree, node->data );
             }
 
-            free( node );
+            FreeTree( tree, node );
 
             return GOOD_EXTRACT;    
         }
@@ -290,42 +501,9 @@ enum TreeErrors ExtractNode( struct Node_t* node )
 }
 
 
-void FindEmpty( struct Node_t* node, struct Node_t** answer )
-{
-    struct Node_t* left = node->left;
-    struct Node_t* right = node->right;
-
-    if( *answer == nullptr )
-    {
-        if ( (left == nullptr) && (right == nullptr) )
-        {
-            *answer = node;
-            return;
-        }
-        else if( (left != nullptr) && (right != nullptr) )
-        {
-            FindEmpty( left, answer );
-            FindEmpty( right, answer );
-        }
-        else if( (left == nullptr) && (right != nullptr) )
-        {
-            FindEmpty( right, answer );
-        }
-        else if( (left != nullptr) && (right == nullptr) )
-        {
-            FindEmpty( left, answer );
-        }
-    }
-    else 
-    {
-        return;
-    }
-}
-
-
 enum TreeErrors Find( struct Tree* tree, TreeElem to_find, struct Node_t** answer)
 {
-    printf("need to find: %.2lf\n", to_find);
+    ON_DEBUG( printf("need to find: %s\n", to_find); )
     FindNode(tree->root, to_find, answer);
 
     return GOOD_FIND;
@@ -340,7 +518,7 @@ void FindNode( struct Node_t* node_search, TreeElem to_find, struct Node_t** ans
         ON_DEBUG( printf(PURPLE "    right: %p\n" DELETE_COLOR, node_search->right); )
     struct Node_t* right_search = node_search->right;
 
-    if( fabs( node_search->data - to_find) > EPSILON )
+    if( strcmp( node_search->data, to_find ) != 0 )
     {
         if( left_search != nullptr)
         {
@@ -356,9 +534,10 @@ void FindNode( struct Node_t* node_search, TreeElem to_find, struct Node_t** ans
     }
     else 
     {
-        ON_DEBUG( printf("node: %p, data: %.2lf\n", node_search, node_search->data); )
+        ON_DEBUG( printf("node: %p, data: %s\n", node_search, node_search->data); )
         *answer = node_search;
             ON_DEBUG( printf(YELLOW "====== End of FindNode ======\n" DELETE_COLOR); )
         return;
     }
 }
+

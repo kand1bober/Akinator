@@ -8,6 +8,6 @@ const double EPSILON = 0.00001;
 char* GetFilePath( char* filepath, const char* filename );
 int CheckSize_t( size_t number );
 void BufferResize( struct Writing_buffer* buffer );
-char* SkipSpaces(char* ptr);
+void MakeOffset( struct File_text* file, int count );
 
 #endif

@@ -11,21 +11,16 @@ int CheckSize_t( size_t number )
 
 char* GetFilePath( char* filepath, const char* filename )
 {
-    printf("getting filepath\n");
-    const char* directory = "/home/vyacheslav/BinaryTree/";
+    const char* directory = "/home/vyacheslav/Akinator/Tree/";
     sprintf(filepath, "%s%s", directory, filename);
 
     return filepath;
 }
 
-
-
-char* SkipSpaces(char* ptr)
+void MakeOffset( struct File_text* file, int count )
 {
-    int i = 0;
-    while( *(ptr + i) == ' ')
+    for(int i = 0; i < count; i++)
     {
-        i++;
+        fprintf(file->stream, "\t");
     }
-    return ptr + i;
 }

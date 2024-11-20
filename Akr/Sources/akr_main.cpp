@@ -2,7 +2,7 @@
 
 int main()
 {
-    struct Tree
+    Game();
 
     return 0;
 }

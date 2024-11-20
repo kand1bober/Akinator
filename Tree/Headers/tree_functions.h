@@ -10,10 +10,14 @@
 #include "tree_decoration.h"
 #include "tree_utilities.h"
 
-#ifndef AKINATOR_FUNCTIONS_HEADER
-#define AKINATOR_FUNCTIONS_HEADER
+#ifndef TREE_FUNCTIONS_HEADER
+#define TREE_FUNCTIONS_HEADER
 
-typedef double TreeElem;
+const int STRING_SIZE = 100;
+const int STRING_ARRAY_SIZE = 100;
+typedef char* DataElem; //указатель на строку 
+typedef char TreeElem[STRING_SIZE]; // строка
+
 const uint64_t POISON = 0xBADBABA;
 
 
@@ -43,6 +47,13 @@ enum TreeErrors
     GOOD_CREATE,
     BAD_CREATE,
 
+    FOUND_EMPTY_STRING,
+    NOT_FOUND_EMPTY_STRING,
+    SAME_STRING_EXISTS,
+    SAME_STRING_NOT_EXISTS,
+    GOOD_STRING_DELETE,
+    BAD_STRING_DELETE,
+
     GOOD_INSERT,
     BAD_INSERT,
 
@@ -54,17 +65,30 @@ enum TreeErrors
 
     GOOD_FIND,
     BAD_FIND,
+
+    GOOD_DATA,
+    BAD_DATA,
+
+    GOOD_INPUT,
+    BAD_INPUT
 };
 
 enum Direction
 {
     LEFT = 1,
     RIGHT = 2,
+    NO_BRANCH = 3,
+};
+
+struct SmartString
+{
+    TreeElem string;
+    int links_amount;
 };
 
 struct Node_t
 {   
-    TreeElem data;
+    DataElem data;
     Node_t* left;
     Node_t* right;
     Node_t* parent;
@@ -73,24 +97,31 @@ struct Node_t
 struct Tree 
 {
     Node_t* root;
+    SmartString strings[STRING_ARRAY_SIZE]; //массив структур со строкой и кол-ввом ссылок на неё
     TreeErrors status;
 };
 
-//------------------OPERATIONS WITH TREE---------------------------
+//-------------------------------OPERATIONS WITH TREE------------------------------------
 enum TreeErrors TreeCtor( struct Tree* tree );
 enum TreeErrors TreeDtor( struct Tree* tree );
-void FreeTree( struct Node_t* node);
+void FreeTree( struct Tree* tree, struct Node_t* node ); //-------- recursive
 
-
-//------------------OPERATIONS WITH NODES--------------------------
-enum TreeErrors CreateNode( TreeElem data, struct Node_t** new_node );
+//--------------------------------OPERATIONS WITH NODES----------------------------------
+enum TreeErrors CreateNode( struct Tree* tree, TreeElem data, struct Node_t** new_node );
+enum TreeErrors FindString( struct Tree* tree, TreeElem to_find, int* string_position );
 enum TreeErrors Find( struct Tree* tree, TreeElem to_find, struct Node_t** answer);
-enum TreeErrors ExtractNode( struct Node_t* node );
-enum TreeErrors NodeInsert( struct Node_t* left, struct Node_t* right, struct Node_t* node );
-enum TreeErrors InsertLeave( struct Node_t* parent, enum Direction branch, struct Node_t* to_connect );
-enum TreeErrors NodeDelete( struct Node_t* node );
-//----------------------------RECURSIVE FUNCTIONS--------------------------------------
+enum TreeErrors NodeDelete( struct Tree* tree, struct Node_t* node );
+enum TreeErrors InsertNode( struct Node_t* left, struct Node_t* right, struct Node_t* node );
+enum TreeErrors InsertLeave( struct Tree* tree, struct Node_t* parent, enum Direction branch, struct Node_t* to_connect );
+
+//----------------------------RECURSIVE FUNCTIONS----------------------------------------
 void FindNode( struct Node_t* node_search, TreeElem to_find, struct Node_t** answer );
-void FindEmpty( struct Node_t* node, struct Node_t** answer );
+
+//---------------------------- STRING FUCTIONS ------------------------------------------
+enum TreeErrors FindString( struct Tree* tree, TreeElem to_find, int* string_position );
+enum TreeErrors FindSameString( struct Tree* tree, TreeElem to_find, int* string_position );
+enum TreeErrors FindEmptyString( struct Tree* tree, int* string_position );
+enum TreeErrors DeleteString( struct Tree* tree, TreeElem string );
+void StringDump( struct Tree* tree );
 
 #endif

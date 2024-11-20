@@ -1,7 +1,7 @@
 #ifndef CONFIGURATION_LIST_HEADER
 #define CONFIGURATION_LIST_HEADER
 
-#define DEBUG
+// #define DEBUG
 // #define RELIZ
 
 #ifdef DEBUG
