@@ -1,31 +1,3 @@
-# CC = g++
-# CFLAGS = -fsanitize=address,undefined -D _DEBUG -O0 -Wall -Wextra
-
-# SOURCES_DIR = Sources
-
-# SOURCES = $(wildcard $(SOURCES_DIR)/*cpp ) 
-
-# OBJECTS = $(SOURCES:.cpp =.o) 
-
-# EXECUTABLE = Akinator
-
-
-# all: $(EXECUTABLE)
-
-
-# $(EXECUTABLE): $(OBJECTS)
-# 	$(CC) $(OBJECTS) $(CFLAGS) -o $(EXECUTABLE)
-
-
-# %.o: %.cpp
-# 	$(CC) -c $(CFLAGS) -IHeaders $< -o $@
-
-
-# clean:
-# 	@rm  -rf  $(EXECUTABLE) 
-
-	
-# =================
 
 CC = g++
 CFLAGS = -fsanitize=address,undefined -D _DEBUG -O0 -Wall -Wextra
@@ -54,4 +26,4 @@ $(EXECUTABLE): $(OBJECTS_AKR) $(OBJECTS_TREE)
 
 
 clean:
-	@rm  -rf  $(SOURCES_AKR/*.o) $(SOURCES_TREE/*.o)  $(EXECUTABLE)  TreeGraphh.dot  TreeGraph.svg  TreeGraph.html
+	@rm  -rf  $(SOURCES_AKR/*.o) $(SOURCES_TREE/*.o)  $(EXECUTABLE)  ../Tree/TreeGraphh.dot  ../Tree/TreeGraph.svg  ../Tree/TreeGraph.html

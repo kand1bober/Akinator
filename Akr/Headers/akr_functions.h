@@ -13,6 +13,8 @@
 #ifndef AKINATOR_FUNCTIONS_HEADER
 #define AKINATOR_FUNCTIONS_HEADER
 
+const size_t MAX_DEPTH = 100;
+
 enum AkrErrors
 {
     GOOD,
@@ -28,9 +30,9 @@ enum Answer
 
 //-------------------------------AKINATOR--------------------------------------
 enum AkrErrors Game();
-enum AkrErrors Run( struct File_text* file_graph, struct File_text* file_output, struct Tree* tree, int* answer_path );
-enum AkrErrors Play( struct Tree* tree, int* answer_path );
-enum AkrErrors Guess( struct Tree* tree, struct Node_t* node, int* answer_path );
+enum AkrErrors Run( struct File_text* file_graph, struct File_text* file_output, struct Tree* tree, int** answer_path );
+enum AkrErrors Play( struct Tree* tree, int** answer_path );
+enum AkrErrors Guess( struct Tree* tree, struct Node_t* node, int** answer_path );
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------

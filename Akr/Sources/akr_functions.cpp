@@ -1,5 +1,4 @@
 #include "../Headers/akr_functions.h"
-#include <cstdio>
 
 enum AkrErrors Game( )
 {
@@ -11,9 +10,9 @@ enum AkrErrors Game( )
 
     MakeTreeData( &file_graph, &file_input, &game_tree );
     
-    int* answer_path = (int*)calloc( 100, sizeof( int ) );
+    int* answer_path = (int*)calloc( MAX_DEPTH, sizeof( int ) );
 
-    Run( &file_graph, &file_output, &game_tree, answer_path );
+    Run( &file_graph, &file_output, &game_tree, &answer_path );
 
     free( answer_path );    
 
@@ -23,12 +22,12 @@ enum AkrErrors Game( )
 }
 
 
-enum AkrErrors Run( struct File_text* file_graph, struct File_text* file_output, struct Tree* tree, int* answer_path )
+enum AkrErrors Run( struct File_text* file_graph, struct File_text* file_output, struct Tree* tree, int** answer_path )
 {
     while(1)
     {   
-        free( answer_path );
-        answer_path = (int*)calloc( 100, sizeof( int ) );
+        free( *answer_path );
+        *answer_path = (int*)calloc( MAX_DEPTH, sizeof( int ) );
 
         printf("==============================\n"
                "Choose option fo the programm:\n"
@@ -48,6 +47,7 @@ enum AkrErrors Run( struct File_text* file_graph, struct File_text* file_output,
             {
                 printf(YELLOW "You chose to " RED "quit" YELLOW "\n"
                               "Closing programm\n" DELETE_COLOR);
+                free( option );
                 return GOOD;
                 break;
             }
@@ -55,33 +55,36 @@ enum AkrErrors Run( struct File_text* file_graph, struct File_text* file_output,
             {
                 printf(YELLOW "You chose to " SINIY "save data" YELLOW "\n" DELETE_COLOR);  
                 TreeData( tree, file_output );
-                return GOOD;
+                free( option );   
+                // return GOOD;
                 break;
             }
             case 'p':
             { 
                 printf(YELLOW "You chose to " SINIY "play" YELLOW "\n" DELETE_COLOR);
                 Play( tree, answer_path );
+                free( option );   
                 break;
             }         
             case 'd':
             {
                 printf(YELLOW "You chose to " SINIY "dump tree graph" YELLOW  "\n" DELETE_COLOR);
                 Output( file_graph, tree );
+                free( option );   
                 break;
             }
             default: 
             {
                 printf(RED "\n\nHUUUUUUUUUUUUUUUY\ninputed symbol: '%c'\n" DELETE_COLOR, *option);
+                free( option );   
                 break;
             }
         }
-        free( option );   
     }
 }
 
 
-enum AkrErrors Play( struct Tree* tree, int* answer_path )
+enum AkrErrors Play( struct Tree* tree, int** answer_path )
 {
     printf(YELLOW "     ====== You started Akinator ======\n"
                   "Think of the charachter you want me to guess\n" DELETE_COLOR);
@@ -94,11 +97,11 @@ enum AkrErrors Play( struct Tree* tree, int* answer_path )
 }   
 
 
-enum AkrErrors Guess( struct Tree* tree, struct Node_t* node, int* answer_path )
+enum AkrErrors Guess( struct Tree* tree, struct Node_t* node, int** answer_path )
 {
     static int path_depth_count = 1;
         ON_DEBUG( printf(PURPLE "path_dump:\n" DELETE_COLOR); )
-        ON_DEBUG( PathDump( answer_path ); )
+        ON_DEBUG( PathDump( *answer_path ); )
     enum Answer tmp_answer = EMPTY_ANSWER;
 
     if( (node->left != nullptr ) || (node->right != nullptr ) )
@@ -112,20 +115,20 @@ enum AkrErrors Guess( struct Tree* tree, struct Node_t* node, int* answer_path )
         {
             case YES:
             {
-                answer_path[path_depth_count++] = (int)YES;
+                (*answer_path)[path_depth_count++] = (int)YES;
                 Guess( tree, node->left, answer_path );
                 break;
             }
             case NO:
             {
-                answer_path[path_depth_count++] = (int)NO;
+                (*answer_path)[path_depth_count++] = (int)NO;
                 Guess( tree, node->right, answer_path );
                 break;
             }
             default:
             {
                 printf(RED "Something went wrong with the answer :(\n" DELETE_COLOR);
-                answer_path[path_depth_count] = (int)EMPTY_ANSWER;
+                (*answer_path)[path_depth_count] = (int)EMPTY_ANSWER;
                 return BAD;
                 break;  
             }
@@ -158,9 +161,9 @@ enum AkrErrors Guess( struct Tree* tree, struct Node_t* node, int* answer_path )
 
                             //----DBEUG---
                             printf(PURPLE "before Adding character:\n"
-                                   "answer[path_depth_count - 1]: %d\n" DELETE_COLOR, answer_path[path_depth_count - 1] );
+                                   "answer[path_depth_count - 1]: %d\n" DELETE_COLOR, (*answer_path)[path_depth_count - 1] );
                             //------------
-                            AddCharacter( tree, node, answer_path[path_depth_count - 1] );
+                            AddCharacter( tree, node, (*answer_path)[path_depth_count - 1] );
                             break;
                         }
                         case NO:
@@ -258,21 +261,24 @@ enum Answer GetAnswer( void )
 
     if( input == nullptr )
     {   
+        free(input);
         return EMPTY_ANSWER;
     }   
     else if( strcmp( input, "YES" ) == 0 )
     {
+        free(input);
         return YES;
     }
     else if( strcmp( input, "NO" ) == 0 )
     {
+        free(input);
         return NO;
     }
     else 
     {
+        free(input);
         return EMPTY_ANSWER;
     }
-    free(input);
 
     return EMPTY_ANSWER;
 }
