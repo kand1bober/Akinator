@@ -24,8 +24,6 @@ enum TreeErrors StartOutput( struct File_text* file )
     GetFilePath( code_filepath, output_graph_name );
     GetFilePath( html_filepath, output_html_name );
 
-    printf(PURPLE "Name of output file with code: %s\n" DELETE_COLOR, code_filepath); 
-
     //============================== GRAPH FILE ====================================
     file->stream = fopen(code_filepath, "w");
     fprintf(file->stream, "digraph G\n{\nlabel=\"%s\";\nlabelloc=\"t\";\nfontsize=30\nfontname=\"%s\";\nfontcolor=\"%s\"\n"

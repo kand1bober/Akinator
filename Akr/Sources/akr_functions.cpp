@@ -29,13 +29,15 @@ enum AkrErrors Run( struct File_text* file_graph, struct File_text* file_output,
         free( *answer_path );
         *answer_path = (int*)calloc( MAX_DEPTH, sizeof( int ) );
 
-        printf("==============================\n"
-               "Choose option fo the programm:\n"
-               "'q' -- quit                   \n"
-               "'s' -- save data base         \n"
-               "'p' -- play the game          \n"
-               "'d' -- dump the game tree     \n"
-               "==============================\n");
+        printf("==================================\n"
+               "Choose option fo the programm:    \n"
+               "'q' -- quit                       \n"
+               "'s' -- save data base             \n"
+               "'p' -- play the game              \n"
+               "'d' -- dump the game tree         \n"
+               "'t' -- make description of object \n"
+               "'c' -- compare objects            \n"
+               "==================================\n\n");
 
         //---------Input--------       
         char* option = nullptr;
@@ -56,7 +58,6 @@ enum AkrErrors Run( struct File_text* file_graph, struct File_text* file_output,
                 printf(YELLOW "You chose to " SINIY "save data" YELLOW "\n" DELETE_COLOR);  
                 TreeData( tree, file_output );
                 free( option );   
-                // return GOOD;
                 break;
             }
             case 'p':
@@ -73,9 +74,21 @@ enum AkrErrors Run( struct File_text* file_graph, struct File_text* file_output,
                 free( option );   
                 break;
             }
+            case 't':
+            {
+                DescribeCharacter( tree );
+                free( option );
+                break;
+            }
+            case 'c':
+            {
+                CompareCharacters( tree );
+                free( option );
+                break;
+            }
             default: 
             {
-                printf(RED "\n\nHUUUUUUUUUUUUUUUY\ninputed symbol: '%c'\n" DELETE_COLOR, *option);
+                printf(RED "\nbad inputed symbol: '%c'\n" DELETE_COLOR, *option);
                 free( option );   
                 break;
             }
@@ -91,7 +104,7 @@ enum AkrErrors Play( struct Tree* tree, int** answer_path )
 
     Guess( tree, tree->root, answer_path );
 
-    printf(YELLOW "     ====== End of the game ======\n" DELETE_COLOR);
+    printf(YELLOW "====== End of the game ======\n" DELETE_COLOR);
 
     return GOOD;
 }   
@@ -106,10 +119,9 @@ enum AkrErrors Guess( struct Tree* tree, struct Node_t* node, int** answer_path 
 
     if( (node->left != nullptr ) || (node->right != nullptr ) )
     {
-        printf(GREEN "%s\n" DELETE_COLOR, node->data ); //QUESTION
+        printf(GREEN "\n========  %s ? ========\n\n" DELETE_COLOR, node->data ); //QUESTION
 
         tmp_answer = GetAnswer();
-        printf("tmp_answer: %d\n", tmp_answer); 
 
         switch( (int)tmp_answer )
         {
@@ -136,14 +148,14 @@ enum AkrErrors Guess( struct Tree* tree, struct Node_t* node, int** answer_path 
     }
     else 
     {
-        printf("\n    your character is " SINIY "%s" DELETE_COLOR "\n" , node->data);
+        printf("\n    your character is " SINIY "%s" DELETE_COLOR "\n\n" , node->data);
         tmp_answer = GetAnswer();
 
         switch( (int)tmp_answer )
         {
             case YES:
             {
-                printf(GREEN "=== Great ===\n" DELETE_COLOR);
+                printf(GREEN "======== Great ! ========\n" DELETE_COLOR);
                 break;
             }
             case NO:
@@ -159,16 +171,12 @@ enum AkrErrors Guess( struct Tree* tree, struct Node_t* node, int** answer_path 
                         {   
                             printf(GREEN "=== Great! Type the name of your character ===\n" DELETE_COLOR);
 
-                            //----DBEUG---
-                            printf(PURPLE "before Adding character:\n"
-                                   "answer[path_depth_count - 1]: %d\n" DELETE_COLOR, (*answer_path)[path_depth_count - 1] );
-                            //------------
                             AddCharacter( tree, node, (*answer_path)[path_depth_count - 1] );
                             break;
                         }
                         case NO:
                         {
-                            printf(SINIY"                           \n"
+                            printf(SINIY"                          \n"
                                         "      -----    -----      \n"
                                         "        ***    ***        \n"
                                         "       *(O)*  *(O)*       \n"
@@ -215,37 +223,44 @@ enum AkrErrors AddCharacter( struct Tree* tree, struct Node_t* node, int last_an
     printf(YELLOW "Type the name of your character.\n" DELETE_COLOR);
     char* character = nullptr;
     character = readline(">>> ");
-    printf("Echo: %s\n", character);
     CreateNode( tree, character, &tmp_node_1);
-    free(character);
     //-------------------------------
-
-    //-----Changing connection with parent node-------
-    printf(YELLOW "OK. Now type a specifying question.\n" DELETE_COLOR);
-    char* question = nullptr;
-    question = readline(">>> ");
-    CreateNode( tree, question, &tmp_node_2);
-    free( question );
-    //--------------------------------------
 
     if( last_answer == YES )
     {
+        //-----Changing connection with parent node-------
+        printf(YELLOW "OK. Whats the difference between " RED "%s " YELLOW "and " RED "%s.\n" DELETE_COLOR, tmp_node_1->data, node->data );
+        char* question = nullptr;
+        question = readline(">>> ");
+        CreateNode( tree, question, &tmp_node_2);
+        free( question );
+        //--------------------------------------
+
         InsertNode( nullptr, node, tmp_node_2 );
         InsertLeave( tree, tmp_node_2, LEFT, tmp_node_1 );
     }
     else if( last_answer == NO )
     {
+        //-----Changing connection with parent node-------
+        printf(YELLOW "OK. Whats the new characteristic of " RED "%s " YELLOW "that " RED "%s " YELLOW "doesn't have.\n" DELETE_COLOR, tmp_node_1->data, node->data );
+        char* question = nullptr;
+        question = readline(">>> ");
+        CreateNode( tree, question, &tmp_node_2);
+        free( question );
+        //--------------------------------------
+
         InsertNode( nullptr, node, tmp_node_2 );
         InsertLeave( tree, tmp_node_2, LEFT, tmp_node_1 );
-
     } 
     else
     {
-        printf(RED "Something wrong in adding character\n" DELETE_COLOR);
+        printf(RED "The tree of characters is empty\n" DELETE_COLOR);
+        free(character);
         return BAD;
     }
     //------------------------------------------------
 
+    free(character);           
     return GOOD;
 }
 
@@ -284,15 +299,234 @@ enum Answer GetAnswer( void )
 }
 //-----------------------------------------------------------------------------
 
+//======================= FINDING AND COMPARING ===============================
+enum AkrErrors DescribeCharacter( struct Tree* tree)
+{
+    struct ToSearch object = {};
+    CharacterCtor( &object );
+
+    Find( tree, object.to_search, &object.curr_node );
+
+    MakePath( &object );
+
+    WriteDescription( tree, &object );
+
+    PathDump( object.path );
+    
+    CharacterDtor( &object );
+
+    return GOOD;
+}
+
+
+enum AkrErrors CharacterCtor( struct ToSearch* object )
+{
+    object->to_search = nullptr;
+    object->to_search = readline(">>> ");  
+    object->curr_node = nullptr;
+    object->path = (int*)calloc( MAX_DEPTH, sizeof( int ) );
+    object->path_size = 0, object->path_capacity = MAX_DEPTH;
+
+    return GOOD;
+}
+
+
+enum AkrErrors CharacterDtor( struct ToSearch* object )
+{
+    free( object->to_search );
+    object->to_search = nullptr;
+    free( object->path );
+    object->path = nullptr;
+    object->path_size = 0;
+    object->path_capacity = MAX_DEPTH;
+
+    return GOOD;
+}
+
+
+enum AkrErrors MakePath( struct ToSearch* object )
+{
+    while( object->curr_node->parent != nullptr )
+    {
+        if( object->curr_node->parent->left == object->curr_node )
+        {
+            object->path[object->path_size] = LEFT;
+            object->path_size++;
+        }
+        else 
+        {
+            object->path[object->path_size] = RIGHT;
+            object->path_size++;
+        }
+        object->curr_node = object->curr_node->parent;
+    }
+    return GOOD;
+}
+
+
+enum AkrErrors WriteDescription( struct Tree* tree, struct ToSearch* object )
+{
+    object->curr_node = tree->root;
+
+    printf("**********************************\n");
+    for(int i = object->path_size - 1; i >=0; i-- )
+    {
+        if( object->path[i] == LEFT  )
+        { 
+            printf("%s " YELLOW "IS" DELETE_COLOR " %s\n", object->to_search, object->curr_node->data );
+            object->curr_node = object->curr_node->left;
+        }
+        else if( object->path[i] == RIGHT )
+        {
+            printf("%s " YELLOW "IS NOT" DELETE_COLOR " %s\n", object->to_search, object->curr_node->data );
+            object->curr_node = object->curr_node->right;
+        }
+        else 
+        {
+            ;
+        }
+    }
+    printf("**********************************\n\n");
+
+    return GOOD;
+}
+
+
+enum AkrErrors ResizeToSearch( struct ToSearch* object )
+{
+    if( (object->to_search != nullptr) && (object->path != nullptr) )
+    {
+        if( object->path_size >= object->path_capacity )
+        {   
+            object->path = (int*)realloc( object->path, object->path_capacity * 2 );
+            object->path_capacity = object->path_capacity * 2;
+            return GOOD;
+        }
+        else 
+        {
+            return GOOD;
+        }
+    }
+    else 
+    {
+        return BAD;
+    }
+}
+
+
+enum AkrErrors CompareCharacters( struct Tree* tree )
+{
+    printf(SINIY "    Type first character to compare\n" DELETE_COLOR );
+    struct ToSearch object_1 = {};
+    CharacterCtor( &object_1 );
+    Find( tree, object_1.to_search, &object_1.curr_node);
+    MakePath( &object_1 );
+
+    printf(SINIY "    Type second character to compare\n" DELETE_COLOR );
+    struct ToSearch object_2 = {};
+    CharacterCtor( &object_2 );
+    Find( tree, object_2.to_search, &object_2.curr_node);
+    MakePath( &object_2 );
+    
+    //-----------------SAME-----------------------
+    // printf("**********************************\n"
+        //    "" YELLOW " %s " DELETE_COLOR "and" YELLOW " %s are same in:\n" DELETE_COLOR, 
+        //    object_1.to_search, object_2.to_search);
+
+    struct Node_t* node_1 = nullptr;
+    struct Node_t* node_2 = nullptr;
+
+    //---------EXCHANGE----------
+    if(object_1.path_size < object_2.path_size)
+    {
+        struct ToSearch object_tmp = {};
+        object_tmp = object_2;
+        object_2 = object_1;
+        object_1 = object_tmp;
+    }
+    //---------------------------
+
+    //---------COMPARE(first is longer)---------
+    for( int i = 0; i < object_2.path_size; i++ )
+    {
+        node_1 = RecursiveTake( tree, &object_1, i );
+        node_2 = RecursiveTake( tree, &object_2, i );
+
+        //-------совпадают ли воопросы---------
+        if( strcmp( node_1->data, node_2->data ) == 0 )
+        {
+            //------совпадают ли ответы---------
+            if( object_1.path[object_1.path_size - i] == object_2.path[object_2.path_size - i] )
+            {
+                //----------ДА/НЕТ----------
+                if( object_1.path[object_1.path_size - i] == YES) 
+                {
+                    // printf("    - " YELLOW "IS " DELETE_COLOR "%s \n", node_1->data );
+                    printf("%d  %d  Both -%s \n", object_1.path[object_1.path_size - i], object_2.path[object_2.path_size - i], node_1->data );
+                }
+                else
+                {
+                    printf("...\n");
+                    // printf("    - " YELLOW "IS NOT" DELETE_COLOR "%s \n", node_1->data );
+                }
+            }
+            else 
+            {
+                printf("Huy znaet...\n");
+            }
+        }
+    }
+
+    printf(YELLOW " %s " DELETE_COLOR "and" YELLOW " %s are differrent in:\n" DELETE_COLOR, 
+    object_1.to_search, object_2.to_search);
+
+    for( int i = object_2.path_size; i < object_1.path_size; i++ )
+    {
+        node_1 = RecursiveTake( tree, &object_1, i );
+        printf("    -%s\n", node_1->data );
+    }
+    //--------------------------------------
+
+    CharacterDtor( &object_1 );
+    CharacterDtor( &object_2 );
+    
+    return GOOD;
+}
+// функция определяет какая цепочка длиннее и меняет их в нужном порядке при вызове функции обхода
+// в функции обхода вариант для одно порядка, каогда левая( например ) длиннее. 
+//=============================================================================
+
+struct Node_t* RecursiveTake( struct Tree* tree, struct ToSearch* object, int dest )
+{   
+    struct Node_t* node = tree->root;
+
+    for( int i = object->path_size - 1; i >= object->path_size - dest; i-- )
+    {   
+        if( object->path[i] == LEFT )
+        {
+            node = node->left;
+        }
+        else if( object->path[i] == RIGHT )
+        {
+            node = node->right;
+        }
+        else 
+        {
+            printf(RED "strange problem in recursive take\n" DELETE_COLOR);
+        }
+    }
+
+    return node;
+}
 
 //---------------------------------DEBUG---------------------------------------
-
 void PathDump( int* path )
 {
-    printf(PURPLE "=== Dump Begin ===");
+    printf(PURPLE "=== Dump Begin ===\n");
     for(int i = 0; i < 10; i++)
     {
         printf("[%i]: %d\n", i, *(path + i) );
     }   
     printf(PURPLE "=== Dump End ===\n" DELETE_COLOR);
 }
+//-----------------------------------------------------------------------------

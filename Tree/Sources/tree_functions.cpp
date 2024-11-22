@@ -221,44 +221,6 @@ void StringDump( struct Tree* tree )
 }
 //-----------------------------------------------------------------------------
 
-/*
-//extract + delete
-
-// //================ ПОХОДУ БЕСПОЛЕЗНАЯ ФУНКЦИЯ ===================
-// void FindEmpty( struct Node_t* node, struct Node_t** answer )
-// {
-//     struct Node_t* left = node->left;
-//     struct Node_t* right = node->right;
-
-//     if( *answer == nullptr )
-//     {
-//         if ( (left == nullptr) && (right == nullptr) )
-//         {
-//             *answer = node;
-//             return;
-//         }
-//         else if( (left != nullptr) && (right != nullptr) )
-//         {
-//             FindEmpty( left, answer );
-//             FindEmpty( right, answer );
-//         }
-//         else if( (left == nullptr) && (right != nullptr) )
-//         {
-//             FindEmpty( right, answer );
-//         }
-//         else if( (left != nullptr) && (right == nullptr) )
-//         {
-//             FindEmpty( left, answer );
-//         }
-//     }
-//     else 
-//     {
-//         return;
-//     }
-// }
-// //================================================================
-*/
-
 enum TreeErrors InsertLeave( struct Tree* tree, struct Node_t* parent, enum Direction branch, struct Node_t* to_connect )
 {   
     assert( to_connect );
