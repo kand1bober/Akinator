@@ -18,7 +18,7 @@ all: $(EXECUTABLE)
 
 
 $(EXECUTABLE): $(OBJECTS_AKR) $(OBJECTS_TREE) 
-	$(CC) $(OBJECTS_AKR) $(OBJECTS_TREE) $(CFLAGS) -lreadline -o $(EXECUTABLE)
+	$(CC) $(OBJECTS_AKR) $(OBJECTS_TREE) $(CFLAGS) -lSDL2 -lreadline  -o $(EXECUTABLE)
 
 
 %.o: %.cpp

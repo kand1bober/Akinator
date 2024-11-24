@@ -24,13 +24,24 @@ enum AkrErrors Game( )
 
 enum AkrErrors Run( struct File_text* file_graph, struct File_text* file_output, struct Tree* tree, int** answer_path )
 {
+    //--------MUSIC--------------
+    SDL_Init(SDL_INIT_AUDIO); //запускает аудиоподсистему
+
+    SDL_AudioSpec wav_spec;
+    Uint32 wav_length = 0;
+    Uint8 *wav_buffer = nullptr;
+    SDL_AudioDeviceID device = 0;
+
+    StartMusic( wav_spec, wav_length, &wav_buffer, &device );
+    //---------------------------
+
     while(1)
     {   
         free( *answer_path );
         *answer_path = (int*)calloc( MAX_DEPTH, sizeof( int ) );
 
         printf("==================================\n"
-               "Choose option fo the programm:    \n"
+               "Choose option for the programm:    \n"
                "'q' -- quit                       \n"
                "'s' -- save data base             \n"
                "'p' -- play the game              \n"
@@ -50,6 +61,11 @@ enum AkrErrors Run( struct File_text* file_graph, struct File_text* file_output,
                 printf(YELLOW "You chose to " RED "quit" YELLOW "\n"
                               "Closing programm\n" DELETE_COLOR);
                 free( option );
+
+                //--------------MUSIC------------------------------
+                StopMusic( &device, &wav_buffer );
+                //---------------------------------------------------
+
                 return GOOD;
                 break;
             }
@@ -428,10 +444,6 @@ enum AkrErrors CompareCharacters( struct Tree* tree )
     Find( tree, object_2.to_search, &object_2.curr_node);
     MakePath( &object_2 );
     
-    //-----------------SAME-----------------------
-    // printf("**********************************\n"
-        //    "" YELLOW " %s " DELETE_COLOR "and" YELLOW " %s are same in:\n" DELETE_COLOR, 
-        //    object_1.to_search, object_2.to_search);
 
     struct Node_t* node_1 = nullptr;
     struct Node_t* node_2 = nullptr;
@@ -452,38 +464,18 @@ enum AkrErrors CompareCharacters( struct Tree* tree )
         node_1 = RecursiveTake( tree, &object_1, i );
         node_2 = RecursiveTake( tree, &object_2, i );
 
-        //-------совпадают ли воопросы---------
-        if( strcmp( node_1->data, node_2->data ) == 0 )
+        if( object_1.path[ object_1.path_size - i] == object_2.path[object_2.path_size - i] )
         {
-            //------совпадают ли ответы---------
-            if( object_1.path[object_1.path_size - i] == object_2.path[object_2.path_size - i] )
-            {
-                //----------ДА/НЕТ----------
-                if( object_1.path[object_1.path_size - i] == YES) 
-                {
-                    // printf("    - " YELLOW "IS " DELETE_COLOR "%s \n", node_1->data );
-                    printf("%d  %d  Both -%s \n", object_1.path[object_1.path_size - i], object_2.path[object_2.path_size - i], node_1->data );
-                }
-                else
-                {
-                    printf("...\n");
-                    // printf("    - " YELLOW "IS NOT" DELETE_COLOR "%s \n", node_1->data );
-                }
-            }
-            else 
-            {
-                printf("Huy znaet...\n");
-            }
+            // if( )
+            // {
+                printf("Both \n");
+                printf("%s  %s  %d  %d\n", node_1->data, node_2->data, object_1.path[ object_1.path_size - i], object_2.path[object_2.path_size - i] );
+            // }
+            // else 
+            // {
+                // printf("Both are not ");
+            // }
         }
-    }
-
-    printf(YELLOW " %s " DELETE_COLOR "and" YELLOW " %s are differrent in:\n" DELETE_COLOR, 
-    object_1.to_search, object_2.to_search);
-
-    for( int i = object_2.path_size; i < object_1.path_size; i++ )
-    {
-        node_1 = RecursiveTake( tree, &object_1, i );
-        printf("    -%s\n", node_1->data );
     }
     //--------------------------------------
 
@@ -492,8 +484,6 @@ enum AkrErrors CompareCharacters( struct Tree* tree )
     
     return GOOD;
 }
-// функция определяет какая цепочка длиннее и меняет их в нужном порядке при вызове функции обхода
-// в функции обхода вариант для одно порядка, каогда левая( например ) длиннее. 
 //=============================================================================
 
 struct Node_t* RecursiveTake( struct Tree* tree, struct ToSearch* object, int dest )

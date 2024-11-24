@@ -8,6 +8,7 @@
 
 #include "../../Tree/MyTreeLib.h"
 #include "akr_utilities.h"
+#include "akr_music.h"
 
 
 #ifndef AKINATOR_FUNCTIONS_HEADER
@@ -68,4 +69,5 @@ void PathDump( int* path );
 enum Answer GetAnswer( void );
 enum Direction GetBranch( void );
 //-------------------------------
+
 #endif
