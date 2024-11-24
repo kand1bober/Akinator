@@ -327,7 +327,7 @@ enum AkrErrors DescribeCharacter( struct Tree* tree)
 
     WriteDescription( tree, &object );
 
-    PathDump( object.path );
+    RotateArray( object.path, object.path_size );
     
     CharacterDtor( &object );
 
@@ -376,6 +376,9 @@ enum AkrErrors MakePath( struct ToSearch* object )
         }
         object->curr_node = object->curr_node->parent;
     }
+    RotateArray(object->path, object->path_size );
+    ON_DEBUG( PathDump( object.path ); )
+
     return GOOD;
 }
 
@@ -385,7 +388,7 @@ enum AkrErrors WriteDescription( struct Tree* tree, struct ToSearch* object )
     object->curr_node = tree->root;
 
     printf("**********************************\n");
-    for(int i = object->path_size - 1; i >=0; i-- )
+    for(int i = 0; i < object->path_size; i++ )
     {
         if( object->path[i] == LEFT  )
         { 
@@ -458,26 +461,64 @@ enum AkrErrors CompareCharacters( struct Tree* tree )
     }
     //---------------------------
 
-    //---------COMPARE(first is longer)---------
+    //---------COMPARE parts with same length (first is longer)---------
     for( int i = 0; i < object_2.path_size; i++ )
     {
         node_1 = RecursiveTake( tree, &object_1, i );
         node_2 = RecursiveTake( tree, &object_2, i );
 
-        if( object_1.path[ object_1.path_size - i] == object_2.path[object_2.path_size - i] )
+        char* question_1 = node_1->data;
+        char* question_2 = node_2->data;
+
+        int answer_1 = object_1.path[i];
+        int answer_2 = object_2.path[i];
+
+        if( answer_1 == answer_2 )
         {
-            // if( )
-            // {
-                printf("Both \n");
-                printf("%s  %s  %d  %d\n", node_1->data, node_2->data, object_1.path[ object_1.path_size - i], object_2.path[object_2.path_size - i] );
-            // }
-            // else 
-            // {
-                // printf("Both are not ");
-            // }
+            if( strcmp( question_1, question_2 ) == 0 )
+            {
+                if( answer_1 == YES )
+                {
+                    printf(PURPLE "  -Both " YELLOW "ARE " DELETE_COLOR);
+                    printf("%s \n", question_1 );
+                }
+                else 
+                {
+                    printf(PURPLE "  -Both " YELLOW "ARE NOT " DELETE_COLOR);
+                    printf("%s \n", question_1 );
+                }
+            }
+            else 
+            {
+                ;
+            }
         }
+        else if( answer_1 != answer_2 )
+        {
+            if( strcmp( question_1, question_2 ) == 0 )
+            {
+                printf(PURPLE "  -Differrence: " DELETE_COLOR);
+                printf("%s\n", question_1 );
+            }
+            else 
+            {
+                ;
+            }
+        }   
     }
     //--------------------------------------
+    for( int i = object_2.path_size; i < object_1.path_size - 1; i++ )
+    {
+        node_1 = RecursiveTake( tree, &object_1, i );
+        char* question_1 = node_1->data;    
+        int answer_1 = object_1.path[i];
+
+        if( answer_1 == YES )
+        {
+            printf(PURPLE "  -Differrence: " DELETE_COLOR);
+            printf("%s\n", question_1 );
+        }
+    }
 
     CharacterDtor( &object_1 );
     CharacterDtor( &object_2 );
@@ -490,7 +531,7 @@ struct Node_t* RecursiveTake( struct Tree* tree, struct ToSearch* object, int de
 {   
     struct Node_t* node = tree->root;
 
-    for( int i = object->path_size - 1; i >= object->path_size - dest; i-- )
+    for( int i = 0; i < dest; i++ )
     {   
         if( object->path[i] == LEFT )
         {
@@ -520,3 +561,4 @@ void PathDump( int* path )
     printf(PURPLE "=== Dump End ===\n" DELETE_COLOR);
 }
 //-----------------------------------------------------------------------------
+

@@ -3,5 +3,6 @@
 
 char* SkipSpaces(char* ptr);
 char* SkipUntilSpace( char* ptr );
+void RotateArray( int* array, int size );
 
 #endif 
