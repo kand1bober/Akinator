@@ -488,10 +488,6 @@ enum AkrErrors CompareCharacters( struct Tree* tree )
                     printf("%s \n", question_1 );
                 }
             }
-            else 
-            {
-                ;
-            }
         }
         else if( answer_1 != answer_2 )
         {
@@ -499,10 +495,6 @@ enum AkrErrors CompareCharacters( struct Tree* tree )
             {
                 printf(PURPLE "  -Differrence: " DELETE_COLOR);
                 printf("%s\n", question_1 );
-            }
-            else 
-            {
-                ;
             }
         }   
     }

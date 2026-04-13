@@ -1,0 +1,191 @@
+
+{
+"a person"
+	{
+	"on second year of studying"
+		{
+		"blond hair"
+			{
+			"Vova"
+				{
+				"nuull"
+				}
+				{
+				"nuull"
+				}
+			}
+			{
+			"kurator"
+				{
+				"pidor"
+					{
+					"Matvey"
+						{
+						"nuull"
+						}
+						{
+						"nuull"
+						}
+					}
+					{
+					"Vanya"
+						{
+						"nuull"
+						}
+						{
+						"nuull"
+						}
+					}
+				}
+				{
+				"with a beard"
+					{
+					"Bogdan"
+						{
+						"nuull"
+						}
+						{
+						"nuull"
+						}
+					}
+					{
+					"Sanya"
+						{
+						"nuull"
+						}
+						{
+						"nuull"
+						}
+					}
+				}
+			}
+		}
+		{
+		"on 5th year of studying "
+			{
+			"with dark hair"
+				{
+				"wearing glasses"
+					{
+					"Stas Kurnevich"
+						{
+						"nuull"
+						}
+						{
+						"nuull"
+						}
+					}
+					{
+					"Roma Glaz"
+						{
+						"nuull"
+						}
+						{
+						"nuull"
+						}
+					}
+				}
+				{
+				"Lesha Durnov"
+					{
+					"nuull"
+					}
+					{
+					"nuull"
+					}
+				}
+			}
+			{
+			"teacher"
+				{
+				"wearing glasses"
+					{
+					"Burcev"
+						{
+						"nuull"
+						}
+						{
+						"nuull"
+						}
+					}
+					{
+					"programming teacher"
+						{
+						"Ded"
+							{
+							"nuull"
+							}
+							{
+							"nuull"
+							}
+						}
+						{
+						"matan teacher"
+							{
+							"Znamenskaya"
+								{
+								"nuull"
+								}
+								{
+								"nuull"
+								}
+							}
+							{
+							"Chubarov"
+								{
+								"nuull"
+								}
+								{
+								"nuull"
+								}
+							}
+						}
+					}
+				}
+				{
+				"Vyacheslav Kurnevich"
+					{
+					"nuull"
+					}
+					{
+					"nuull"
+					}
+				}
+			}
+		}
+	}
+	{
+	"half a person"
+		{
+		"kvadrober"
+			{
+			"nuull"
+			}
+			{
+			"nuull"
+			}
+		}
+		{
+		"very ill on kishka"
+			{
+			"Stas Zykin"
+				{
+				"nuull"
+				}
+				{
+				"nuull"
+				}
+			}
+			{
+			"poltorashka"
+				{
+				"nuull"
+				}
+				{
+				"nuull"
+				}
+			}
+		}
+	}
+}
+
